@@ -47,6 +47,24 @@ L1 - PHYSICAL
 
 **Header added:** None at this layer; this is the actual data
 
+#### A practical application-protocol map
+
+Ports are conventions that help a client find the intended application. They belong to TCP or UDP (Layer 4), while the protocols below define the application conversation.
+
+| Protocol | Typical port(s) | Transport | Purpose |
+|----------|-----------------|-----------|---------|
+| HTTP | 80 | TCP | Web requests and responses |
+| HTTPS | 443 | TCP (or QUIC/UDP for HTTP/3) | HTTP protected by TLS |
+| SSH | 22 | TCP | Remote shell and secure file/admin access |
+| FTP | 21 control; separate data connection | TCP | File transfer; active/passive modes decide data connection details |
+| SMTP | 25, 587, 465 | TCP | Send/relay email |
+| POP3 | 110, 995 (TLS) | TCP | Download/retrieve email |
+| IMAP | 143, 993 (TLS) | TCP | Server-synchronised email access |
+| DNS | 53 | UDP normally; TCP when needed | Translate names to addresses and carry larger/zone-transfer responses |
+| DHCP | 67 server, 68 client | UDP | Assign local network configuration such as IP address and gateway |
+
+These defaults are not a security boundary: a protocol can run on a non-default port, and port `443` does not by itself prove that traffic is HTTPS.
+
 ---
 
 ### Layer 6: PRESENTATION
@@ -170,6 +188,21 @@ L1 - PHYSICAL
 - ARP (Address Resolution Protocol): "Who has IP 192.168.1.1?" → "It's at MAC 00:11:22:33:44:55"
 
 **Header added:** Destination MAC (6B), source MAC (6B), EtherType (2B), FCS/CRC (4B)
+
+### Remote destination: IP is end-to-end, MAC is next-hop
+
+When a laptop sends a packet to a web server on another network, it keeps the **destination IP** set to the web server. But the Ethernet frame leaving its NIC must be delivered to a device on the local LAN: the default gateway. The destination MAC is therefore the gateway/router's MAC, learned with ARP (or Neighbor Discovery for IPv6).
+
+```mermaid
+flowchart TD
+    L["Laptop\nIP dst = server\nEthernet dst MAC = default gateway"]
+    R["Router\nReads IP destination, chooses next hop\nBuilds a new Ethernet frame"]
+    N["Next router / network\nNew frame, new source and destination MACs"]
+    S["Web server\nFinal local frame uses server MAC"]
+    L --> R --> N --> S
+```
+
+At each routed hop, the router removes the incoming Layer-2 frame and creates a new one for its outgoing link. MAC addresses are therefore **hop-by-hop**; IP addresses are normally **end-to-end** (except where NAT deliberately rewrites them). A switch forwards the existing frame within a LAN, while a router performs this frame replacement between networks.
 
 ---
 
@@ -414,4 +447,3 @@ This **separation of concerns** is why the model has lasted 40 years.
 | 3 | Network | IP, ICMP | Packet | Routing, logical addressing |
 | 2 | Data Link | Ethernet, Wi-Fi, MAC | Frame | Physical addressing, framing |
 | 1 | Physical | Cables, fiber, radio | Bit | Signal transmission |
-

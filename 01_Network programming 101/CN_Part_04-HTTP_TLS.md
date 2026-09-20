@@ -60,6 +60,26 @@ Content-Length: 219
 | **Blank line** | Signals headers end |
 | **Body** | Actual content |
 
+### HTTP message framing: headers are delimited; bodies are not simply "length prefixed"
+
+TCP is a byte stream, so HTTP needs rules for deciding where one message ends. HTTP/1.x uses more than one framing technique:
+
+| Part | How the receiver finds the boundary |
+|------|--------------------------------------|
+| Start line and headers | `CRLF` ends each line; a blank line (`CRLF CRLF`) ends the header section |
+| A body with `Content-Length: N` | Read exactly `N` body bytes |
+| A chunked body | Each chunk begins with its own hexadecimal length, ending with a zero-length chunk |
+| Some close-delimited responses | Connection closing marks the body end (older/limited cases) |
+
+```text
+HTTP/1.1 200 OK\r\n
+Content-Length: 5\r\n
+\r\n
+hello
+```
+
+The blank line is a **delimiter** for headers. `Content-Length` is a textual length declaration for the body, not a fixed binary prefix placed before the whole HTTP/1.1 message. HTTP/2 and HTTP/3 move to a binary framing layer: each frame has a length field, type, flags, and stream identifier. This is why "HTTP uses a length prefix" is only partly true—the version and message part matter.
+
 ---
 
 ## 4.4 Testing HTTP with telnet

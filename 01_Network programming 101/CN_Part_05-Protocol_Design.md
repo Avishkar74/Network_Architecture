@@ -266,7 +266,7 @@ Two characters per byte. Human-readable for debugging.
 
 ### Base64 - For Text Transport
 
-Encode binary data in text (survives email, JSON, data URIs).
+Base64 is an **encoding**, not encryption. It turns arbitrary binary into a restricted text alphabet so it survives email, JSON, and data URIs. Anyone can decode it; do not treat it as a secret.
 
 ```
 Raw:     3 bytes → 4 characters
@@ -274,13 +274,26 @@ Bytes:   0xFF 0xFE 0xFD
 Base64:  //79            (4 chars)
 ```
 
-**Overhead**: 33% (3 bytes → 4 characters).
+It groups 24 input bits (3 bytes) into four 6-bit values, then maps each value to one Base64 character. If the final group has only one or two input bytes, `=` padding makes the output a multiple of four characters.
+
+```
+Encoded length = 4 × ceil(input_bytes / 3)
+
+300 bytes → 4 × ceil(300 / 3) = 400 Base64 characters
+1 byte    → 4 characters (two = padding characters)
+2 bytes   → 4 characters (one = padding character)
+```
+
+For large inputs this is roughly **33% overhead** (3 bytes become 4 characters); very short inputs can have proportionally more overhead because of padding.
 
 **Uses**:
 - Email attachments
 - JSON with binary data
 - Data URIs (`<img src="data:image/png;base64,...">`)
 - HTTP Basic Authentication
+- JWT parts: a JWT is normally `base64url(header).base64url(payload).signature`
+
+**Base64URL** is the URL-safe variant used by JWTs: it replaces `+` with `-`, `/` with `_`, and commonly omits trailing `=` padding. Decoding a JWT payload reveals claims such as an email address; the signature provides integrity, while encryption would be needed for secrecy.
 
 ---
 
