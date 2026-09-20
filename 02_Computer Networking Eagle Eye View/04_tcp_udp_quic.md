@@ -128,6 +128,8 @@ After the first FIN and its ACK:
 
 **Solution:** `SO_REUSEADDR` socket option allows reuse before TIME_WAIT expires
 
+`SO_REUSEADDR` is normally set **before** `bind()` so a restarted server can bind its familiar local address/port while older connections may still be in `TIME_WAIT`. It does not mean "two arbitrary servers may listen on the same address and port" and it does not make a busy, actively listening port available. Exact reuse behavior has OS-specific details; it is a restart convenience, not a general sharing mechanism.
+
 ### CLOSE_WAIT: Application Bug
 
 **"Sockets stuck in CLOSE_WAIT"**
@@ -189,6 +191,30 @@ Total before first byte: 1 RTT (even first connection!)
 - Mumbai to Virginia ≈ **190 ms** and **no amount of money changes the speed of light**
 
 Every optimization tries to **reduce RTTs**, not bandwidth.
+
+---
+
+## MTU, MSS, and TCP payload: do not mix them up
+
+These names describe limits at different layers. They are related, but they are not interchangeable.
+
+| Term | Layer / unit | What it limits | Common Ethernet/IPv4/TCP value |
+|------|--------------|----------------|--------------------------------|
+| **MTU** | Link layer frame payload | Largest IP packet a link can carry without fragmentation | `1500` bytes |
+| **IP total length** | IP packet | IP header + TCP header + TCP payload | Up to the MTU on a normal Ethernet path |
+| **MSS** | TCP payload | Largest TCP data chunk advertised for a connection | `1460` bytes = `1500 - 20 - 20` |
+
+For a plain IPv4 TCP connection with no options:
+
+```
+Ethernet MTU: 1500 bytes available for the IP packet
+  - IPv4 header: 20 bytes
+  - TCP header:  20 bytes
+  --------------------------------
+TCP MSS:        1460 bytes of application payload
+```
+
+The older TCP default MSS used when no MSS option is received is **536 bytes** for IPv4. That is a fallback compatibility value—not the usual Ethernet MTU and not the normal modern payload size. Headers/options, IPv6, VPNs, and the smallest link MTU on the path can all lower the usable MSS. Path MTU Discovery helps endpoints avoid IP fragmentation.
 
 ---
 
@@ -458,4 +484,3 @@ Most TCP options don't survive:
 ```
 
 The entire evolution of modern networking is **attacking the RTT tax**.
-

@@ -53,6 +53,14 @@ while (1) {
 | `> 0` | Parent | You are parent; value is child PID |
 | `−1` | Both failed | No memory/processes to fork |
 
+`fork()` creates a child process with a copy of the parent's file-descriptor table. That is why the child can use the `client_fd` returned by `accept()` even though it did not call `accept()` itself: both processes' descriptor entries refer to the same underlying open socket description in the kernel.
+
+This also explains the two `close()` calls in the example:
+- The child closes its inherited copy of `server_fd`; it only serves this accepted client.
+- The parent closes its inherited copy of `client_fd`; it only accepts future clients.
+
+If either process accidentally keeps an extra copy open, TCP may not see end-of-file when expected because the kernel still has another reference to that socket.
+
 ```mermaid
 graph TD
     A["accept()"]

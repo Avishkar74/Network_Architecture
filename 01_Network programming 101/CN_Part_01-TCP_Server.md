@@ -76,6 +76,50 @@ bind(server_fd, (struct sockaddr*)&addr, sizeof(addr));
 - Running as root = any bug in request handler = root compromise
 - Production: Bind 8080 as unprivileged user, use front proxy for 80/443
 
+### Addresses, ports, and `INADDR_ANY`
+
+`bind()` chooses the **local** endpoint of a socket. A server uses it so clients have a stable place to find it; a client can also call it when it needs a particular source IP or source port, but normally lets the kernel choose both.
+
+| Value | Meaning | Normal use |
+|-------|---------|------------|
+| `INADDR_ANY` (`0.0.0.0`) | Receive connections sent to any local IPv4 interface | A server listening on all interfaces |
+| A specific local IP | Receive only on that interface | A service restricted to one NIC/address |
+| A remote server IP | The destination passed to `connect()` | A client choosing where to connect |
+
+```mermaid
+flowchart LR
+    C["Client"] -->|"connect: destination = 203.0.113.10:443"| S["Server"]
+    S -->|"bind: local = 0.0.0.0:443"| N["Every local interface"]
+```
+
+`INADDR_ANY` is a wildcard **local listening address**, not the address of a remote machine. A client cannot use it as the destination of `connect()` because `0.0.0.0` does not identify a server to route to. The usual client flow is `socket() → connect()`; the kernel implicitly binds an available local address and ephemeral source port first.
+
+One socket has one local bind address: it can listen on one specific IP or on all local IPs with `INADDR_ANY`, but it cannot use a single bind to select an arbitrary subset such as "these two of my three addresses." Use separate sockets for that subset, or listen on all interfaces and enforce policy above the socket layer.
+
+### Why a port stops at 65535
+
+A TCP or UDP header stores each port in a **16-bit** field. That gives `2^16 = 65,536` numeric values: `0` through `65535`. The network stack has no normal TCP/UDP header representation for port `70000`, so changing an application or OS setting cannot make that a valid Internet port.
+
+| Range | Convention | Examples |
+|-------|------------|----------|
+| 0–1023 | Well-known/system ports; usually privileged on Unix-like systems | HTTP 80, HTTPS 443, SSH 22 |
+| 1024–49151 | Registered/user ports | Application-specific services |
+| 49152–65535 | Dynamic/ephemeral range (commonly used for client source ports) | Kernel-selected client ports |
+
+A listening socket is identified by its local protocol, IP address, and port. A connected TCP socket is identified by the full **4-tuple**: source IP, source port, destination IP, destination port. TCP and UDP have separate port namespaces, so TCP/53 and UDP/53 can coexist.
+
+### Byte order: `htons()` and `ntohs()`
+
+Network protocols use **network byte order**, which is big-endian: the most significant byte comes first. A host may instead be little-endian, so socket code must convert multi-byte numeric fields at the boundary.
+
+| Function | Direction | Typical use |
+|----------|-----------|-------------|
+| `htons()` | host → network, 16-bit | Put a port in `sin_port` |
+| `ntohs()` | network → host, 16-bit | Read a port returned by `accept()`/`recvfrom()` |
+| `htonl()` / `ntohl()` | host ↔ network, 32-bit | IPv4 numeric fields and protocol values |
+
+Worked example: decimal `2026` is hexadecimal `0x07EA`. On the wire it is the two bytes `07 EA`, regardless of the CPU. `htons(2026)` produces the in-memory value whose bytes are `07 EA`; on a little-endian machine, printing that converted integer as though it were a host-order number can misleadingly show `59911` (`0xEA07`). Do not memorize that number—use `htons()` before sending and `ntohs()` after receiving.
+
 ---
 
 ## 1.4 listen() - Enter Listening Mode
@@ -269,13 +313,15 @@ graph LR
 
 ### Other Important Signals
 
-| Signal | Trigger | Default |
-|--------|---------|---------|
-| **SIGINT** | Ctrl-C | Caught → exit |
-| **SIGTERM** | Kill signal | Caught → exit |
-| **SIGKILL** | Force kill | Cannot be caught |
-| **SIGHUP** | Terminal disconnect | Kills process |
-| **SIGPIPE** | Write to closed peer | **Kills process** |
+| Signal | Typical number on Linux/macOS | Trigger | Default / server lesson |
+|--------|---------|---------|---------|
+| **SIGINT** | 2 | Ctrl-C | Terminate; useful during local development |
+| **SIGKILL** | 9 | Forced kill | Cannot be caught, blocked, or handled; no graceful cleanup |
+| **SIGPIPE** | 13 | Write to a peer whose read side is gone | Terminates by default; ignore/handle it and check `write()` errors |
+| **SIGTERM** | 15 | Normal service-manager shutdown | Can be caught; close listeners and drain work gracefully |
+| **SIGHUP** | 1 | Terminal hangup or service reload convention | Default terminates; many servers repurpose it to reload config |
+
+Signal numbers are platform conventions; use symbolic names such as `SIGKILL`, not hard-coded integers. In particular, `kill -9` means `SIGKILL`, while `kill <pid>` normally sends the catchable `SIGTERM`.
 
 ---
 
