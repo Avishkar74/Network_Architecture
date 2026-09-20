@@ -204,6 +204,37 @@ flowchart TD
 
 At each routed hop, the router removes the incoming Layer-2 frame and creates a new one for its outgoing link. MAC addresses are therefore **hop-by-hop**; IP addresses are normally **end-to-end** (except where NAT deliberately rewrites them). A switch forwards the existing frame within a LAN, while a router performs this frame replacement between networks.
 
+#### Worked example: laptop to a remote web server
+
+Suppose the laptop has IP `192.168.1.20` and default gateway `192.168.1.1`. It wants to reach a web server at `203.0.113.50`.
+
+1. The laptop compares `203.0.113.50` with its local subnet and sees that the server is remote.
+2. It chooses the default gateway as the **next hop**.
+3. If its ARP cache has no entry for `192.168.1.1`, it broadcasts: “Who has `192.168.1.1`?” The gateway replies with its MAC address. ARP maps a local IPv4 address to a local Ethernet MAC; ARP cannot discover the Frankfurt server's MAC across routers.
+4. The first frame is sent with these important fields:
+
+```text
+Ethernet source MAC:      laptop's NIC MAC
+Ethernet destination MAC: default gateway's MAC
+IP source:                192.168.1.20
+IP destination:           203.0.113.50
+TCP destination port:     80 or 443 (depending on HTTP/HTTPS)
+```
+
+```text
+Laptop
+  | Ethernet: dst MAC = gateway MAC; IP dst = 203.0.113.50
+  v
+Default gateway/router
+  | New Ethernet frame: dst MAC = next-hop MAC; IP dst unchanged
+  v
+... routed hops ...
+  v
+Remote server: final local Ethernet frame has the server MAC
+```
+
+The laptop does **not** put the remote server's MAC address in its first frame because that MAC is meaningful only on the server's local Ethernet segment. Routers use the destination IP to move the packet toward the remote network, rebuilding the frame at every routed hop.
+
 ---
 
 ### Layer 1: PHYSICAL

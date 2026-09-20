@@ -56,6 +56,29 @@ Client                              Server
 
 **Result:** Mitnick attack is infeasible
 
+### TCP header: field order matters
+
+The TCP header begins with the two ports, in this order:
+
+```text
+0                   15 16                  31
++---------------------+---------------------+
+| Source Port         | Destination Port    |
++---------------------+---------------------+
+| Sequence Number                           |
++-------------------------------------------+
+| Acknowledgment Number                     |
++-------------------------------------------+
+| Header length | Flags | Window             |
++-------------------------------------------+
+| Checksum      | Urgent Pointer             |
++-------------------------------------------+
+| Options (optional) ... | TCP payload ...   |
++-------------------------------------------+
+```
+
+The **source port appears first**, followed by the destination port. Both are 16-bit transport-layer fields; IP carries the source and destination addresses separately.
+
 ---
 
 ## TCP Connection Termination (4-Way Close)
@@ -124,11 +147,32 @@ After the first FIN and its ACK:
 4. Delayed packet from old connection arrives and confuses new connection
 5. **2 MSL ensures old packets have died** before tuple is reused
 
-**Side effect:** `bind()` on same port after close gives "address already in use"
+### Restarting a server: `TIME_WAIT`, `SO_REUSEADDR`, and `SO_REUSEPORT`
 
-**Solution:** `SO_REUSEADDR` socket option allows reuse before TIME_WAIT expires
+After a server stops, its listening socket is gone, but recently accepted TCP connections can still matter. If the server side actively closed one of those connections, that connected socket can remain in `TIME_WAIT`. It still has the server's local IP and port in its 4-tuple. A quick restart that tries to `bind()` the same address and port—especially a wildcard address—can therefore get `EADDRINUSE` until the old connections are safe to forget.
 
-`SO_REUSEADDR` is normally set **before** `bind()` so a restarted server can bind its familiar local address/port while older connections may still be in `TIME_WAIT`. It does not mean "two arbitrary servers may listen on the same address and port" and it does not make a busy, actively listening port available. Exact reuse behavior has OS-specific details; it is a restart convenience, not a general sharing mechanism.
+```mermaid
+flowchart TD
+    A["socket()"] --> B["setsockopt(SO_REUSEADDR)"]
+    B --> C["bind()"] --> D["listen()"] --> E["accept()"]
+    E --> F["close() accepted connection"] --> G["TIME_WAIT may remain"]
+    G --> H["Restart server"] --> B
+```
+
+`SO_REUSEADDR` is the usual restart option. Set it after `socket()` and **before** `bind()`:
+
+```c
+int server_fd = socket(AF_INET, SOCK_STREAM, 0);
+int yes = 1;
+setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes));
+
+bind(server_fd, (struct sockaddr *)&addr, sizeof(addr));
+listen(server_fd, SOMAXCONN);
+```
+
+It permits a compatible new listener to bind while old `TIME_WAIT` connections still exist. It does **not** steal a port from a process that is currently listening, bypass TCP safety, or make arbitrary duplicate binds valid. Exact details differ slightly by OS, so production code should follow the target platform's socket rules.
+
+`SO_REUSEPORT` solves a different problem: it deliberately lets multiple sockets/processes bind the same local address and port so the kernel can spread incoming connections across workers. Use it for a pre-fork or multi-worker server; use `SO_REUSEADDR` for normal restart resilience. They are often used together, but neither is a substitute for the other.
 
 ### CLOSE_WAIT: Application Bug
 
@@ -448,6 +492,43 @@ Most TCP options don't survive:
 - Only 32 bits of ISN to encode the hash
 - Window scale, SACK, timestamps are **lost** for that connection
 - Which is why **cookies switch on under pressure**, not always
+
+---
+
+## TCP congestion control: sharing a finite network
+
+Flow control protects the **receiver** from a fast sender. Congestion control protects the **network**—routers, links, and other connections—from too many senders filling queues at once. Without it, queues grow, packets drop, and every sender retransmits, making the overload worse.
+
+TCP keeps a **congestion window** (`cwnd`): an estimate of how much unacknowledged data may be in flight. The usable sending limit is roughly the smaller of the receiver's advertised window and `cwnd`.
+
+### The classic loss-based idea
+
+Original TCP congestion control treated **packet loss as a warning that the network is congested**. It increases the sending rate while ACKs arrive and backs off when loss appears. RTT matters because ACKs return after one round trip: a longer RTT means feedback arrives later and limits how quickly a sender can safely grow its window.
+
+```text
+Start cautiously: small cwnd
+ACKs arrive:      grow cwnd
+Loss detected:    reduce cwnd, then probe upward again
+```
+
+| Phase | Simple mental model |
+|-------|---------------------|
+| **Slow start** | Start with a small window and grow rapidly (roughly doubling each RTT) while discovering available capacity. |
+| **Congestion avoidance** | Once near a likely limit, grow more slowly and steadily to avoid building an oversized queue. |
+| **Loss recovery** | A timeout or repeated duplicate ACKs suggest loss; reduce the rate and retransmit. |
+
+**Reno** is the classic example of this loss-based behavior: increase while the path looks healthy, then cut back sharply after congestion loss. **CUBIC**, common on modern Linux systems, still uses loss as an important signal but grows its window with a curve designed to use high-bandwidth, long-RTT paths better.
+
+### BBR: estimate the path instead of waiting for loss
+
+BBR takes a different approach. Rather than treating packet loss as its main congestion signal, it estimates:
+
+- bottleneck bandwidth: the fastest sustainable delivery rate observed
+- minimum RTT: the path's propagation delay without a large queue
+
+It then aims for roughly **bandwidth × RTT** bytes in flight: enough to fill the path, but not so much that it must create a standing queue and wait for packet loss. This does not make BBR ignore loss entirely; it changes the primary model from “fill until a packet drops” to “measure the path and pace near its capacity.”
+
+For the course-level question, remember the contrast: traditional/original TCP algorithms use **packet loss** as the congestion signal; BBR primarily models **bandwidth and RTT**.
 
 ---
 
