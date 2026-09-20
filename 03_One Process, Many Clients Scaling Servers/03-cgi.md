@@ -1,6 +1,8 @@
 # Part 3 — CGI (Common Gateway Interface)
 
-[← Part 2 — select and epoll](02-select-epoll.md) | [Back to Index](00-index.md) | Next: [Part 4 — FastCGI →](04-fastcgi.md)
+[← Previous](02-select-epoll.md) | [Next →](04-fastcgi.md)
+
+
 
 ---
 
@@ -256,4 +258,4 @@ This is your first concrete instance of **Core Idea #1 — Amortise the setup** 
 
 ---
 
-[← Part 2 — select and epoll](02-select-epoll.md) | [Back to Index](00-index.md) | Next: [Part 4 — FastCGI →](04-fastcgi.md)
+[← Previous](02-select-epoll.md) | [Next →](04-fastcgi.md)

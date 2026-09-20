@@ -1,5 +1,8 @@
 # CN Part 5: Protocol Design - Framing & Encoding
 
+[← Previous](CN_Part_04-HTTP_TLS.md) | [Next →](CN_Part_06-RPC_gRPC.md)
+
+
 > TCP is a byte stream. Your protocol must define where messages end.
 
 ---
@@ -359,3 +362,7 @@ graph TD
 ---
 
 ## Next: RPC - Making network calls look like function calls
+
+---
+
+[← Previous](CN_Part_04-HTTP_TLS.md) | [Next →](CN_Part_06-RPC_gRPC.md)

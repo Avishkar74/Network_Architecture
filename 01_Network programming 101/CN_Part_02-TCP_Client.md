@@ -1,5 +1,8 @@
 # CN Part 2: The TCP Client
 
+[← Previous](CN_Part_01-TCP_Server.md) | [Next →](CN_Part_03-Many_Clients.md)
+
+
 > Clients skip bind() and listen(). They just connect().
 
 ---
@@ -274,3 +277,5 @@ openssl s_client -connect www.example.com:443
 ---
 
 ## Next: What if one client crashes? One server?
+
+[← Previous](CN_Part_01-TCP_Server.md) | [Next →](CN_Part_03-Many_Clients.md)

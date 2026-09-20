@@ -1,6 +1,8 @@
 # Part 5 — Servlets & Server Protocols
 
-[← Part 4 — FastCGI](04-fastcgi.md) | [Back to Index](00-index.md) | Next: [Part 6 — Scaling Limits →](06-scaling-limits.md)
+[← Previous](04-fastcgi.md) | [Next →](06-scaling-limits.md)
+
+
 
 ---
 
@@ -178,4 +180,4 @@ This directly sets up the deeper discussion in [Part 6](06-scaling-limits.md): o
 
 ---
 
-[← Part 4 — FastCGI](04-fastcgi.md) | [Back to Index](00-index.md) | Next: [Part 6 — Scaling Limits →](06-scaling-limits.md)
+[← Previous](04-fastcgi.md) | [Next →](06-scaling-limits.md)

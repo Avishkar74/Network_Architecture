@@ -1,5 +1,8 @@
 # Revision Short Notes - Nginx & Web Server Architecture
 
+[← Previous](CHEATSHEET.md) | [Next →](30_QUIZ_QUESTIONS.md)
+
+
 ## Part 1: History (Late 1990s - 2002)
 
 **Connection vs Request**
@@ -293,3 +296,5 @@ POST_READ → SERVER_REWRITE → FIND_CONFIG → REWRITE → POST_REWRITE
 8. "Sendfile disabled by gzip" = "Bytes must be touched in user space"
 9. "Location precedence" = "= > ^~ > regex > implicit"
 10. "NGX_OK means suspended" = "Not done, goes back to event loop"
+
+[← Previous](CHEATSHEET.md) | [Next →](30_QUIZ_QUESTIONS.md)

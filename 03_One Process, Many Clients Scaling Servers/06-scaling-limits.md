@@ -1,6 +1,8 @@
 # Part 6 — Scaling Limits, C10K/C10M & Little's Law
 
-[← Part 5 — Servlets & Server Protocols](05-servlets-and-protocols.md) | [Back to Index](00-index.md) | Next: [Part 7 — Real-World Server Architectures →](07-real-world-server-architectures.md)
+[← Previous](05-servlets-and-protocols.md) | [Next →](07_real_world_server_architectures.md)
+
+
 
 ---
 
@@ -255,4 +257,4 @@ flowchart LR
 
 ---
 
-[← Part 5 — Servlets & Server Protocols](05-servlets-and-protocols.md) | [Back to Index](00-index.md) | Next: [Part 7 — Real-World Server Architectures →](07-real-world-server-architectures.md)
+[← Previous](05-servlets-and-protocols.md) | [Next →](07_real_world_server_architectures.md)

@@ -1,5 +1,8 @@
 # LAST-MINUTE REVISION: WHAT YOU MUST REMEMBER
 
+[← Previous](07_quiz.md)
+
+
 ## TOP 10 CONCEPTS THAT WILL DEFINITELY BE ON THE EXAM
 
 ### 1. TCP 3-WAY HANDSHAKE
@@ -421,3 +424,4 @@ The specifics of SMTP, POP3, SS7 might not be in your daily work. But **the prin
 
 Good luck. 🚀
 
+[← Previous](07_quiz.md)

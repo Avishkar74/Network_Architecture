@@ -1,6 +1,8 @@
 # Part 7 — Real-World Server Architectures
 
-[← Part 6 — Scaling Limits](06-scaling-limits.md) | [Back to Index](00-index.md) | Next: [Part 8 — Revision & Quiz Preparation →](08-revision-and-mcqs.md)
+[← Previous](06-scaling-limits.md) | [Next →](08_revision_and_mcqs.md)
+
+
 
 ---
 
@@ -377,4 +379,4 @@ graph LR
 
 ---
 
-[← Part 6 — Scaling Limits](06-scaling-limits.md) | [Back to Index](00-index.md) | Next: [Part 8 — Revision & Quiz Preparation →](08-revision-and-mcqs.md)
+[← Previous](06-scaling-limits.md) | [Next →](08_revision_and_mcqs.md)

@@ -1,6 +1,8 @@
 # Part 8 — Revision & Quiz Preparation
 
-[← Part 7 — Real-World Server Architectures](07-real-world-server-architectures.md) | [Back to Index](00-index.md)
+[← Previous](07_real_world_server_architectures.md)
+
+
 
 ---
 
@@ -557,4 +559,4 @@ Go over the four core ideas one more time, memorise the numbers, and you're read
 
 ---
 
-[← Part 7 — Real-World Server Architectures](07-real-world-server-architectures.md) | [Back to Index](00-index.md)
+[← Previous](07_real_world_server_architectures.md)

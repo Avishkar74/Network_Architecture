@@ -1,5 +1,8 @@
 # CN Part 4: HTTP, TLS, and Application Protocols
 
+[← Previous](CN_Part_03-Many_Clients.md) | [Next →](CN_Part_05-Protocol_Design.md)
+
+
 > HTTP is just TCP with text format.  
 > TLS sits under HTTP.
 
@@ -298,3 +301,7 @@ graph TD
 ---
 
 ## Next: How do we frame messages in TCP?
+
+---
+
+[← Previous](CN_Part_03-Many_Clients.md) | [Next →](CN_Part_05-Protocol_Design.md)

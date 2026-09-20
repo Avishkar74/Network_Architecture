@@ -1,5 +1,8 @@
 # Part 1: Web Server Architecture History & Evolution
 
+[Next →](Part_2_Nginx_Architecture.md)
+
+
 ## 1.1 Understanding Connections vs Requests
 
 **Connection**: An open channel between browser and server that persists over time
@@ -187,3 +190,5 @@ Avoid TCP handshake overhead for each query
 > "Understanding the evolution tells you what the limitation was, and what was proposed to fix it. Sometimes you look at the same limitation and fix it a completely different way. Understanding history is how you get to create a different timeline."
 
 **Lesson**: Every design choice in this era was answering a specific constraint. That constraint changed. Virtual threads in Java, Goroutines in Go brought thread-per-connection back when memory costs dropped. Knowing which rules are laws and which are habits is essential.
+
+[Next →](Part_2_Nginx_Architecture.md)

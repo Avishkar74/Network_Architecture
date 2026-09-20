@@ -1,5 +1,8 @@
 # 4. TCP, UDP, AND QUIC
 
+[← Previous](03_ss7.md) | [Next →](05_text_protocols.md)
+
+
 ## TCP: The 3-Way Handshake
 
 ### Why Three Messages?
@@ -565,3 +568,7 @@ For the course-level question, remember the contrast: traditional/original TCP a
 ```
 
 The entire evolution of modern networking is **attacking the RTT tax**.
+
+---
+
+[← Previous](03_ss7.md) | [Next →](05_text_protocols.md)

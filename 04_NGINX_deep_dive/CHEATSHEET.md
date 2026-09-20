@@ -1,5 +1,8 @@
 # Nginx Cheatsheet - Exam Prep
 
+[← Previous](Part_4_Advanced_Topics.md) | [Next →](REVISION_SHORT_NOTES.md)
+
+
 ## Definitions
 
 **Connection** = Persistent channel (survives multiple requests)
@@ -431,3 +434,5 @@ Before exam:
 - [ ] WRR = smooth formula: highest current_weight, subtract total
 - [ ] Amortize = take setup off request path
 - [ ] Design question = ask different question, not how to make cheaper
+
+[← Previous](Part_4_Advanced_Topics.md) | [Next →](REVISION_SHORT_NOTES.md)

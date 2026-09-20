@@ -1,5 +1,8 @@
 # 30 Quiz Questions - Nginx & Web Server Architecture
 
+[← Previous](REVISION_SHORT_NOTES.md)
+
+
 ---
 
 ## PART 1: HISTORY & FUNDAMENTALS (Questions 1-8)
@@ -1385,3 +1388,5 @@ Focus on:
 3. **Cache concepts** (features)
 4. **Routing + phases** (practical config)
 5. **Design patterns** (why decisions matter)
+
+[← Previous](REVISION_SHORT_NOTES.md)

@@ -1,5 +1,8 @@
 # COMPREHENSIVE QUIZ: 65 QUESTIONS
 
+[← Previous](06_cheat_sheet.md) | [Next →](08_final_revision.md)
+
+
 ## PART 1: MULTIPLE CHOICE QUESTIONS (30 MCQs)
 
 ### Difficulty: Easy-Medium
@@ -622,3 +625,4 @@
 
 **Success metric:** 70%+ on MCQs, all short answers answered, correct sequence order
 
+[← Previous](06_cheat_sheet.md) | [Next →](08_final_revision.md)

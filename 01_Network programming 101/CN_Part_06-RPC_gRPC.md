@@ -1,5 +1,8 @@
 # CN Part 6: RPC and gRPC
 
+[← Previous](CN_Part_05-Protocol_Design.md) | [Next →](CN_Part_07-Debugging.md)
+
+
 > Making network calls look like function calls.  
 > But they're not.
 
@@ -316,3 +319,5 @@ graph LR
 ---
 
 ## Next: Debugging tools (tcpdump, curl, strace)
+
+[← Previous](CN_Part_05-Protocol_Design.md) | [Next →](CN_Part_07-Debugging.md)

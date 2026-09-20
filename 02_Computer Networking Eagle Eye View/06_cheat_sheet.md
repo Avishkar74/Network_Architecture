@@ -1,5 +1,8 @@
 # CHEAT SHEET & QUICK REFERENCE
 
+[← Previous](05_text_protocols.md) | [Next →](07_quiz.md)
+
+
 ## PORT NUMBERS TO MEMORIZE
 
 | Service | Port | Note |
@@ -387,3 +390,4 @@ L1: MTP1 (64 kbps DS0, E1/T1 circuits)
 
 10. **SYN cookies:** Encode state in ISN, no backlog entry
 
+[← Previous](05_text_protocols.md) | [Next →](07_quiz.md)

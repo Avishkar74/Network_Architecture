@@ -1,5 +1,8 @@
 # CN Part 7: Debugging Network Issues
 
+[← Previous](CN_Part_06-RPC_gRPC.md) | [Next →](CN_Summary.md)
+
+
 > Don't guess. See what's actually on the wire.
 
 ---
@@ -328,3 +331,5 @@ strace -e trace=select ./server
 ---
 
 ## Next: Summary - Everything Together
+
+[← Previous](CN_Part_06-RPC_gRPC.md) | [Next →](CN_Summary.md)

@@ -1,5 +1,8 @@
 # Part 2: Nginx Architecture - The Event Loop Revolution
 
+[← Previous](Part_1_Web_Server_History.md) | [Next →](Part_3_Nginx_Features.md)
+
+
 ## 2.1 Igor Sysoev & The Birth of Nginx
 
 ### The Problem Context
@@ -349,3 +352,5 @@ if (c->fd == -1 || rev->instance != instance) {  // Check generation
 - From one machine serving 100 → One machine serving thousands
 
 One architectural question unlocked an order of magnitude improvement.
+
+[← Previous](Part_1_Web_Server_History.md) | [Next →](Part_3_Nginx_Features.md)

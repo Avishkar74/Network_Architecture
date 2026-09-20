@@ -1,5 +1,8 @@
 # 5. TEXT PROTOCOLS: SMTP, POP3, IMAP, FTP
 
+[← Previous](04_tcp_udp_quic.md) | [Next →](06_cheat_sheet.md)
+
+
 ## Introduction to Text Protocols
 
 **Last session:** Built binary protocols with explicit framing
@@ -594,3 +597,4 @@ QUIT
 | FTP | Delimiter | Line-based commands, PASV decoding |
 | HTTP/1.1 | Both | Headers + Content-Length |
 
+[← Previous](04_tcp_udp_quic.md) | [Next →](06_cheat_sheet.md)

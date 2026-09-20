@@ -1,5 +1,8 @@
 # Part 4: HTTP Parsing, Load Balancing & FastCGI
 
+[← Previous](Part_3_Nginx_Features.md) | [Next →](CHEATSHEET.md)
+
+
 ## 4.1 HTTP Request Parsing: Resumable State Machine
 
 ### Why Standard Parsing Fails
@@ -739,3 +742,5 @@ Prefork, pre-thread, servlets, connection pools, FastCGI, upstream keepalive.
 Six names for one move: Take expensive setup off request path, pay once.
 
 The pattern matters more than the name.
+
+[← Previous](Part_3_Nginx_Features.md) | [Next →](CHEATSHEET.md)

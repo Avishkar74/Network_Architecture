@@ -1,5 +1,8 @@
 # Part 3: Nginx Features - Caching, Routing & Load Balancing
 
+[← Previous](Part_2_Nginx_Architecture.md) | [Next →](Part_4_Advanced_Topics.md)
+
+
 ## 3.1 Reverse Proxy: Why Nginx Sits in the Middle
 
 ### Forward Proxy vs Reverse Proxy
@@ -595,3 +598,5 @@ Nginx sits in the middle because:
 5. **It can absorb slow clients** (your app servers stay fast)
 
 The features are not add-ons; they're natural consequences of the architecture.
+
+[← Previous](Part_2_Nginx_Architecture.md) | [Next →](Part_4_Advanced_Topics.md)

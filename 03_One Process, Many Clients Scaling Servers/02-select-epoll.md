@@ -1,6 +1,8 @@
 # Part 2 — select() and epoll()
 
-[← Part 1 — Scaling Servers](01-scaling-servers.md) | [Back to Index](00-index.md) | Next: [Part 3 — CGI →](03-cgi.md)
+[← Previous](01-scaling-servers.md) | [Next →](03-cgi.md)
+
+
 
 ---
 
@@ -275,4 +277,4 @@ flowchart TD
 
 ---
 
-[← Part 1 — Scaling Servers](01-scaling-servers.md) | [Back to Index](00-index.md) | Next: [Part 3 — CGI →](03-cgi.md)
+[← Previous](01-scaling-servers.md) | [Next →](03-cgi.md)

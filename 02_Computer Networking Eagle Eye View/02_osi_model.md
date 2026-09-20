@@ -1,5 +1,8 @@
 # 2. OSI MODEL
 
+[← Previous](01_sockets.md) | [Next →](03_ss7.md)
+
+
 ## Introduction
 
 The OSI model is a **1984 committee model** that has outlived almost everything built on top of it. It is not a perfect model, but it is incredibly useful for understanding networks.
@@ -478,3 +481,7 @@ This **separation of concerns** is why the model has lasted 40 years.
 | 3 | Network | IP, ICMP | Packet | Routing, logical addressing |
 | 2 | Data Link | Ethernet, Wi-Fi, MAC | Frame | Physical addressing, framing |
 | 1 | Physical | Cables, fiber, radio | Bit | Signal transmission |
+
+---
+
+[← Previous](01_sockets.md) | [Next →](03_ss7.md)

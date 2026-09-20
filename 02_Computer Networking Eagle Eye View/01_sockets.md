@@ -1,5 +1,8 @@
 # 1. SOCKETS
 
+[Next →](02_osi_model.md)
+
+
 ## What is a Socket?
 
 A socket is an endpoint for network communication. Everything above sockets is a **convention** (software-level abstraction), and everything below is **somebody else's problem** (hardware/OS-level concerns).
@@ -245,3 +248,4 @@ int main() {
 | close() | Terminate connection | 0/-1 | Both |
 | setsockopt() | Set socket options | 0/-1 | Both |
 
+[Next →](02_osi_model.md)

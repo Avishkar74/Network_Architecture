@@ -1,6 +1,8 @@
 # Part 1 — Scaling Servers & Concurrency
 
-[← Back to Index](00-index.md) | Next: [Part 2 — select and epoll →](02-select-epoll.md)
+[Next →](02-select-epoll.md)
+
+
 
 ---
 
@@ -209,4 +211,4 @@ The PDF also notes the symmetric rule applies on the **client side**: set a dead
 
 ---
 
-[← Back to Index](00-index.md) | Next: [Part 2 — select and epoll →](02-select-epoll.md)
+[Next →](02-select-epoll.md)

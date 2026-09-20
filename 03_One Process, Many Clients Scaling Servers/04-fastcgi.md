@@ -1,6 +1,8 @@
 # Part 4 — FastCGI
 
-[← Part 3 — CGI](03-cgi.md) | [Back to Index](00-index.md) | Next: [Part 5 — Servlets & Server Protocols →](05-servlets-and-protocols.md)
+[← Previous](03-cgi.md) | [Next →](05-servlets-and-protocols.md)
+
+
 
 ---
 
@@ -252,4 +254,4 @@ flowchart TD
 
 ---
 
-[← Part 3 — CGI](03-cgi.md) | [Back to Index](00-index.md) | Next: [Part 5 — Servlets & Server Protocols →](05-servlets-and-protocols.md)
+[← Previous](03-cgi.md) | [Next →](05-servlets-and-protocols.md)

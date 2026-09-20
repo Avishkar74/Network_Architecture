@@ -1,5 +1,8 @@
 # CN Part 1: The TCP Server - Seven System Calls
 
+[Next →](CN_Part_02-TCP_Client.md)
+
+
 > Every TCP server follows exactly seven system calls.  
 > Every framework wraps these.
 
@@ -370,3 +373,7 @@ sequenceDiagram
 ---
 
 ## Next: What happens when multiple clients arrive?
+
+---
+
+[Next →](CN_Part_02-TCP_Client.md)

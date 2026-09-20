@@ -1,5 +1,8 @@
 # CN Part 3: Many Clients at Once
 
+[← Previous](CN_Part_02-TCP_Client.md) | [Next →](CN_Part_04-HTTP_TLS.md)
+
+
 > Sequential echo server handles one client at a time.  
 > Real servers need to handle hundreds/thousands.
 
@@ -289,3 +292,7 @@ graph TD
 ---
 
 ## Next: How HTTP works on top of TCP
+
+---
+
+[← Previous](CN_Part_02-TCP_Client.md) | [Next →](CN_Part_04-HTTP_TLS.md)

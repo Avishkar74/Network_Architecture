@@ -1,5 +1,8 @@
 # CN Summary: The Complete Picture
 
+[← Previous](CN_Part_07-Debugging.md)
+
+
 > Everything is a wrapper around seven system calls.
 
 ---
@@ -323,3 +326,5 @@ graph TD
 ---
 
 **Go build something. Break it. Fix it with tcpdump.**
+
+[← Previous](CN_Part_07-Debugging.md)
