@@ -4,6 +4,11 @@
 
 ---
 
+## 📄 Documentation
+
+**[→ Protocol Specification](docs/PROTOCOL_SPEC.md)**  
+Formal 2-page specification of the BLP/1 binary protocol, including frame format, header fields, request/response structure, and connection behavior.
+
 ## 1. Project overview
 
 ### What the assignment is
@@ -556,68 +561,5 @@ flowchart LR
     F --> G[next known frame handled normally]
 ```
 
----
 
-## How to Demonstrate the Assignment
 
-Use the normal commands below — no special mode needed.
-
-**Terminal 1:**
-
-```powershell
-cd D:\Network_Architecture\05_Binary_Calculator_Assignment
-python bserve.py ./www 9000
-```
-
-*Say: "This starts the TCP server. It calls `bind()` on port 9000, then `listen()`,
-then blocks on `accept()` waiting for a client."*
-
-**Terminal 2 — successful file request:**
-
-```powershell
-cd D:\Network_Architecture\05_Binary_Calculator_Assignment
-python bcurl.py -v "localhost:9000/index.html"
-```
-
-*Say: "The `-v` flag shows the actual bytes. `42 4C` is the magic `BL`.
-`00 00 00 14` is the header length 20. `00 00 00 22` is the payload length 34.
-The server responds with type `02` and status `00 C8` = 200."*
-
-**Calculator:**
-
-```powershell
-python bcurl.py -v "localhost:9000/add?a=2&b=3"
-```
-
-*Say: "The target `/add?a=2&b=3` is parsed as a calculator route. The server
-returns `5\n`. Notice the request ID `00 00 00 01` appears in both frames —
-that is the correlation number."*
-
-**404:**
-
-```powershell
-python bcurl.py "localhost:9000/missing.html"
-```
-
-*Say: "This file does not exist. Status 404."*
-
-**Path traversal:**
-
-```powershell
-python bcurl.py "localhost:9000/../../secret"
-```
-
-*Say: "The server resolves the path and checks it is still inside `./www`. It
-is not, so it returns 400."*
-
-**Run the test suite:**
-
-```powershell
-python -m unittest discover -s tests -v
-```
-
-*Say: "`test_six_frames_one_tcp_connection_and_unknown_skip` sends 3 add
-requests + 1 unknown frame (type 99) + 3 multiply requests in a single write.
-The server returns all 6 correct responses and silently skips the unknown type.
-`test_frame_can_arrive_in_small_pieces` sends one byte at a time to prove
-`read_exact()` correctly handles TCP fragmentation."*
