@@ -7,7 +7,7 @@ This project is a small file server built for a Network Architecture course. It 
 
 ```mermaid
 flowchart LR
-    C[Client: ./curl] -->|TCP connection| S[Server: ./observe]
+    C[Client: ./bcurl] -->|TCP connection| S[Server: ./bserve]
     S -->|safe file lookup| W[www directory]
     W -->|file bytes| S
     S -->|binary RESPONSE frame| C
@@ -61,15 +61,15 @@ This creates two executables:
 
 | Executable | Meaning |
 |---|---|
-| `./observe` | The TCP file server. |
-| `./curl` | The course-project client. It is not the operating system's `curl` utility. |
+| `./bserve` | The TCP file server. |
+| `./bcurl` | The course-project client. It is not the operating system's `curl` utility. |
 
 ## Run the project
 
 ### 1. Start the server
 
 ```bash
-./observe ./www 9000
+./bserve ./www 9000
 ```
 
 Arguments:
@@ -82,7 +82,7 @@ Arguments:
 ### 2. Request a file from another terminal
 
 ```bash
-./curl -v localhost:9000/index.html
+./bcurl -v localhost:9000/index.html
 ```
 
 Expected response body:
@@ -96,7 +96,7 @@ Use `-v` to see the binary request and response frames as hexadecimal bytes. Wit
 ### 3. Try an error response
 
 ```bash
-./curl -v localhost:9000/missing.html
+./bcurl -v localhost:9000/missing.html
 ```
 
 The server returns status `404`, and the client exits with a non-zero exit code.
@@ -105,8 +105,8 @@ The server returns status `404`, and the client exits with a non-zero exit code.
 
 ```mermaid
 sequenceDiagram
-    participant Client as curl client
-    participant Server as observe server
+    participant Client as bcurl client
+    participant Server as bserve server
     participant Disk as www directory
 
     Client->>Server: TCP connect
@@ -204,7 +204,9 @@ sequenceDiagram
     C-->>S: Close TCP connection
 ```
 
-Unknown frame types are safely ignored: the server first reads their declared payload length, skips that payload, and then continues with the next frame. This keeps the TCP stream synchronized.
+Unknown frame types are safely ignored on both sides: the receiver first reads
+their declared payload length, skips that payload, and continues with the next
+frame on the same TCP connection. With `-v`, the client also dumps skipped frames. This keeps the TCP stream synchronized.
 
 ## File safety
 
@@ -233,7 +235,7 @@ This prevents a request such as `/../etc/passwd` from escaping `./www`.
 Run the client with `-v`:
 
 ```bash
-./curl -v localhost:9000/index.html
+./bcurl -v localhost:9000/index.html
 ```
 
 The request begins like this:
@@ -281,3 +283,14 @@ make clean
 - [server/main.cpp](server/main.cpp): server implementation.
 - [client/main.cpp](client/main.cpp): client implementation.
 - [tests/test_protocol.py](tests/test_protocol.py): executable examples of protocol behavior.
+
+## Verified terminal runs
+
+These screenshots were taken from actual clean-build terminal runs, not sample
+output. The verbose success run is also saved as [raw text](docs/hexdump.txt).
+
+![Successful request and complete hexdump](docs/demo-success.png)
+
+![404, traversal rejection, and binary byte comparison](docs/demo-errors.png)
+
+![Full test suite including client extension skipping](docs/demo-tests.png)
