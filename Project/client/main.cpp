@@ -63,7 +63,7 @@ int main(int argc, char** argv) {
     } else if (argc == 2) {
         url_argument = argv[1];
     } else {
-        std::cerr << "usage: curl [-v] host:port/path\n";
+        std::cerr << "usage: bcurl [-v] host:port/path\n";
         return 2;
     }
 
@@ -91,12 +91,25 @@ int main(int argc, char** argv) {
     }
 
     nap::Frame response;
-    const nap::ReadFrame result = nap::read_frame(socket_fd, response);
-    close(socket_fd);
-    if (result != nap::ReadFrame::ok) {
-        std::cerr << "invalid response\n";
-        return 1;
+    for (;;) {
+        const nap::ReadFrame result = nap::read_frame(socket_fd, response);
+        if (result != nap::ReadFrame::ok) {
+            std::cerr << "invalid response\n";
+            close(socket_fd);
+            return 1;
+        }
+        if (verbose) {
+            std::vector<uint8_t> response_bytes;
+            nap::send_frame(-1, response, &response_bytes);
+            nap::hex_dump(response.type == nap::RESPONSE ? "< RESPONSE FRAME" :
+                          "< SKIPPED FRAME", response_bytes);
+        }
+        if (response.type == nap::RESPONSE) {
+            break;
+        }
+        // Unknown extensions are consumed completely. Never reconnect.
     }
+    close(socket_fd);
 
     uint16_t status = 0;
     std::vector<nap::Header> headers;
@@ -107,9 +120,6 @@ int main(int argc, char** argv) {
     }
 
     if (verbose) {
-        std::vector<uint8_t> response_bytes;
-        nap::send_frame(-1, response, &response_bytes);
-        nap::hex_dump("< RESPONSE FRAME", response_bytes);
         std::cerr << "Status: " << status << "\n";
         for (const nap::Header& header : headers) {
             std::cerr << nap::header_name(header) << ": " << header.value << "\n";
