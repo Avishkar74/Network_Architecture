@@ -1,11 +1,4 @@
-Successful request and complete hexdump
-![alt text](image.png)
-
-404, traversal rejection, and binary byte comparison
-![alt text](image-1.png)
-
-Full test suite including client extension skipping
-![alt text](image-2.png)
+# Read SPEC.md
 
 # Binary TCP File Server
 
@@ -298,8 +291,11 @@ make clean
 These screenshots were taken from actual clean-build terminal runs, not sample
 output. The verbose success run is also saved as [raw text](docs/hexdump.txt).
 
-![Successful request and complete hexdump](docs/demo-success.png)
+Successful request and complete hexdump
+![alt text](image.png)
 
-![404, traversal rejection, and binary byte comparison](docs/demo-errors.png)
+404, traversal rejection, and binary byte comparison
+![alt text](image-1.png)
 
-![Full test suite including client extension skipping](docs/demo-tests.png)
+Full test suite including client extension skipping
+![alt text](image-2.png))
