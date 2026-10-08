@@ -22,7 +22,16 @@ struct Frame {
 // length-prefixed custom name for later extensions.
 enum class HeaderName : uint8_t {
     content_type = 1,
-    message = 2,
+    content_length = 2,
+    content_encoding = 3,
+    cache_control = 4,
+    last_modified = 5,
+    etag = 6,
+    date = 7,
+    server = 8,
+    location = 9,
+    accept_ranges = 10,
+    message = 11,
     custom = 255,
 };
 
