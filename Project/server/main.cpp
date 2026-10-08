@@ -128,7 +128,7 @@ int create_listening_socket(uint16_t port) {
 
 int main(int argc, char** argv) {
     if (argc != 3) {
-        std::cerr << "usage: observe <www-root> <port>\n";
+        std::cerr << "usage: bserve <www-root> <port>\n";
         return 2;
     }
 
