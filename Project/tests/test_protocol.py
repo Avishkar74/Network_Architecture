@@ -6,6 +6,7 @@ import socket
 import struct
 import subprocess
 import tempfile
+import threading
 import time
 import unittest
 
@@ -66,7 +67,7 @@ class ProtocolTests(unittest.TestCase):
             with open(os.path.join(cls.web_root, relative_name), "wb") as output:
                 output.write(content)
 
-        cls.server = subprocess.Popen([os.path.join(ROOT, "observe"), cls.web_root, str(PORT)])
+        cls.server = subprocess.Popen([os.path.join(ROOT, "bserve"), cls.web_root, str(PORT)])
         for _ in range(40):
             try:
                 socket.create_connection(("127.0.0.1", PORT), 0.1).close()
@@ -121,11 +122,11 @@ class ProtocolTests(unittest.TestCase):
 
     def test_client_output_and_exit_code(self):
         success = subprocess.run(
-            [os.path.join(ROOT, "curl"), "-v", f"127.0.0.1:{PORT}/index.html"],
+            [os.path.join(ROOT, "bcurl"), "-v", f"127.0.0.1:{PORT}/index.html"],
             capture_output=True,
         )
         missing = subprocess.run(
-            [os.path.join(ROOT, "curl"), f"127.0.0.1:{PORT}/missing"],
+            [os.path.join(ROOT, "bcurl"), f"127.0.0.1:{PORT}/missing"],
             capture_output=True,
         )
 
@@ -133,6 +134,50 @@ class ProtocolTests(unittest.TestCase):
         self.assertNotEqual(missing.returncode, 0)
         self.assertIn(b"01 01 00 00", success.stderr)
         self.assertIn(b"< RESPONSE FRAME", success.stderr)
+
+    def test_client_skips_unknown_frame_on_same_connection(self):
+        with socket.socket() as listener:
+            listener.bind(("127.0.0.1", 0))
+            listener.listen(1)
+            listener.settimeout(3)
+            port = listener.getsockname()[1]
+            requests = []
+            errors = []
+
+            def reply():
+                try:
+                    with listener.accept()[0] as peer:
+                        peer.settimeout(3)
+                        raw_header = receive_exact(peer, 8)
+                        _, _, _, length = struct.unpack("!BBHI", raw_header)
+                        requests.append(receive_exact(peer, length))
+                        payload = struct.pack("!HH", 200, 0) + b"EXTENSION OK"
+                        # Send two extensions and a response one byte at a time.
+                        frames = (make_frame(99, b"future") + make_frame(100) +
+                                  make_frame(2, payload))
+                        for byte in frames:
+                            peer.sendall(bytes([byte]))
+                        self.assertEqual(peer.recv(1), b"")
+                except Exception as exc:
+                    errors.append(exc)
+
+            worker = threading.Thread(target=reply)
+            worker.start()
+            result = subprocess.run(
+                [os.path.join(ROOT, "bcurl"), "-v", f"127.0.0.1:{port}/index.html"],
+                capture_output=True, timeout=5,
+            )
+            worker.join(5)
+            self.assertFalse(worker.is_alive())
+            self.assertEqual(errors, [])
+            self.assertEqual(requests, [b"/index.html"])
+            self.assertEqual((result.returncode, result.stdout), (0, b"EXTENSION OK"))
+            self.assertEqual(result.stderr.count(b"< SKIPPED FRAME"), 2)
+            self.assertEqual(result.stderr.count(b"< RESPONSE FRAME"), 1)
+            # A second connection would still be pending on this listening socket.
+            listener.settimeout(0.1)
+            with self.assertRaises(socket.timeout):
+                listener.accept()
 
     def test_disconnect_and_oversized_header(self):
         sock = self.connect()
