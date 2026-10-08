@@ -37,8 +37,8 @@ ls
 
 Say something like:
 
-> This is a binary HTTP-inspired TCP file server. `observe` is the server,
-> `curl` is the custom client, `SPEC.md` is the shared protocol contract, and
+> This is a binary HTTP-inspired TCP file server. `bserve` is the server,
+> `bcurl` is the custom client, `SPEC.md` is the shared protocol contract, and
 > `tests` contains the integration tests.
 
 Optionally open `README.md` and point out the architecture diagram and the
@@ -63,7 +63,7 @@ What to say:
 In the **Server** terminal, run:
 
 ```bash
-./observe ./www 9000
+./bserve ./www 9000
 ```
 
 What to say:
@@ -71,14 +71,16 @@ What to say:
 > The server now listens on TCP port 9000 and will serve only files below the
 > `www` directory. It does not expose arbitrary files from the computer.
 
-Leave this terminal running.
+Leave this terminal running. A blank terminal is normal: the server waits
+silently for clients. Do not type the client command into this busy terminal;
+open the second terminal in the same project folder.
 
 ## Part 4: Demonstrate a successful binary request
 
 In the **Client** terminal, run:
 
 ```bash
-./curl -v localhost:9000/index.html
+./bcurl -v localhost:9000/index.html
 ```
 
 Point out:
@@ -99,7 +101,7 @@ For a byte-by-byte explanation, open the examples in `SPEC.md` while recording.
 ### Missing file
 
 ```bash
-./curl -v localhost:9000/missing.html
+./bcurl -v localhost:9000/missing.html
 echo $?
 ```
 
@@ -108,7 +110,7 @@ Explain that the server replies with 404 and the client exits non-zero.
 ### Traversal attempt
 
 ```bash
-./curl -v 'localhost:9000/../etc/passwd'
+./bcurl -v 'localhost:9000/../etc/passwd'
 echo $?
 ```
 
@@ -120,10 +122,10 @@ only safe paths under `./www` and cannot be used to read `/etc/passwd`.
 Create a tiny binary file in the web root:
 
 ```bash
-printf '\x00\x01\xFE\xFFbinary-data' > www/demo.bin
-./curl localhost:9000/demo.bin > received-demo.bin
-cmp www/demo.bin received-demo.bin && echo 'Binary bytes match exactly'
-rm -f www/demo.bin received-demo.bin
+printf '\x00\x01\xFE\xFFbinary-data' > www/recording-sample.bin
+./bcurl localhost:9000/recording-sample.bin > received-recording-sample.bin
+cmp www/recording-sample.bin received-recording-sample.bin && echo 'Binary bytes match exactly'
+rm -f www/recording-sample.bin received-recording-sample.bin
 ```
 
 What to say:
@@ -147,6 +149,7 @@ make test
 Point out these test names when they pass:
 
 - `test_persistent_unknown_and_fragmented_frames`
+- `test_client_skips_unknown_frame_on_same_connection`
 - `test_disconnect_and_oversized_header`
 - `test_file_responses`
 - `test_invalid_requests`
@@ -182,3 +185,14 @@ Before submitting the recording, make sure it visibly shows:
 - [ ] A binary-file byte comparison.
 - [ ] Passing automated tests.
 - [ ] The protocol specification with annotated examples.
+
+## Verified terminal runs
+
+These screenshots were taken from actual clean-build terminal runs, not sample
+output. The verbose success run is also saved as [raw text](docs/hexdump.txt).
+
+![Successful request and complete hexdump](docs/demo-success.png)
+
+![404, traversal rejection, and binary byte comparison](docs/demo-errors.png)
+
+![Full test suite including client extension skipping](docs/demo-tests.png)
