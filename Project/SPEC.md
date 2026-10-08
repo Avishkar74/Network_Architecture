@@ -48,11 +48,25 @@ block-beta
 |---:|---:|---|---|
 | 0 | 1 byte | Version | Must be `1` for NAFP/1. |
 | 1 | 1 byte | Type | `1` REQUEST, `2` RESPONSE; other values are extensions. |
-| 2 | 2 bytes | Flags | Must be zero in NAFP/1. Reserved for future versions. |
+| 2 | 2 bytes | Flags | Zero on REQUEST/RESPONSE; extension flags are ignored. |
 | 4 | 4 bytes | Payload Length | Number of payload bytes immediately following the header. |
 
 The fixed-size header is only 8 bytes, simple to parse, and lets the receiver
 find the next frame even when frames arrive in pieces or back-to-back.
+
+### Why these field widths?
+
+- Version is 8 bits: 256 values are enough for this small protocol, and checking
+  one byte makes incompatible versions easy to reject.
+- Type is 8 bits: two values are used now, leaving room for extension frames.
+- Flags are 16 bits: reserved switches can be added without growing the header.
+  All flags must be zero on REQUEST and RESPONSE in version 1. Extension flags
+  are ignored along with the extension payload.
+- Payload length is 32 bits: a fixed unsigned field is easy to encode in network
+  order and avoids variable-length parsing. Although it can describe nearly
+  4 GiB, implementations enforce a 16 MiB cap to bound frame memory use.
+- The 16 MiB cap is a practical limit for this file demo, not a TCP limitation.
+  Large files would need chunking in a later protocol version.
 
 ## 4. Frame types and extensibility
 
@@ -69,7 +83,8 @@ older receivers.
 
 ## 5. REQUEST payload
 
-A request payload is a nonempty UTF-8 path beginning with `/`. There is no NUL
+A request payload is a nonempty UTF-8 path beginning with `/`, at most 4096
+bytes long. Paths outside that bound receive 400. There is no NUL
 terminator and no separate path-length field because the frame payload length
 already gives the exact number of bytes.
 
@@ -111,7 +126,16 @@ Known IDs are:
 | ID | Header name | Example value |
 |---:|---|---|
 | 1 | `Content-Type` | `application/octet-stream` |
-| 2 | `Message` | `ok`, `not found`, `invalid request` |
+| 2 | `Content-Length` | `67` |
+| 3 | `Content-Encoding` | `identity` |
+| 4 | `Cache-Control` | `no-cache` |
+| 5 | `Last-Modified` | HTTP-date |
+| 6 | `ETag` | entity tag |
+| 7 | `Date` | HTTP-date |
+| 8 | `Server` | `NAFP/1` |
+| 9 | `Location` | `/index.html` |
+| 10 | `Accept-Ranges` | `bytes` |
+| 11 | `Message` (project extension) | `ok`, `not found`, `invalid request` |
 
 For a custom future name, use ID `255`. Its record becomes:
 
@@ -142,45 +166,70 @@ This is the header-level equivalent of safely skipping an unknown frame type.
 - File paths are canonicalized and checked to remain within the configured root;
   this also prevents a symbolic link under the root from pointing outside it.
 
-## 9. Complete annotated hexadecimal examples
+## 9. Complete annotated hexadecimal capture
 
-### Request: `GET /index.html` conceptually
+This is an actual request for the repository's `www/index.html`, captured by
+`./bcurl -v localhost:19339/index.html` after a clean build. Port 19339 was used
+for the capture; it does not change any protocol bytes. Both complete frames are
+below, without omitted bytes. The raw terminal output is in
+[docs/hexdump.txt](docs/hexdump.txt).
 
-The protocol has no text `GET`; type `01` means REQUEST.
-
-```text
-01 01 00 00 00 00 00 0B 2F 69 6E 64 65 78 2E 68 74 6D 6C
-```
-
-| Bytes | Meaning |
-|---|---|
-| `01` | Version 1 |
-| `01` | Type 1: REQUEST |
-| `00 00` | Flags = 0 |
-| `00 00 00 0B` | Payload length = 11 bytes |
-| `2F 69 6E 64 65 78 2E 68 74 6D 6C` | UTF-8 `/index.html` |
-
-### Response: `200`, two headers, body `OK`
-
-This short example uses `Content-Type: text/plain` and `Message: ok` so every
-byte is visible. The actual server normally uses `application/octet-stream`.
+### Request: 19 bytes total, 11-byte payload
 
 ```text
-01 02 00 00 00 00 00 16
-00 C8 00 02
-01 00 0A 74 65 78 74 2F 70 6C 61 69 6E
-02 00 02 6F 6B
-4F 4B
+01 01 00 00 00 00 00 0B 2F 69 6E 64 65 78 2E 68
+74 6D 6C
 ```
 
-| Bytes | Meaning |
-|---|---|
-| `01 02 00 00 00 00 00 16` | Version 1, RESPONSE, flags 0, payload length 22 |
-| `00 C8` | Status 200 |
-| `00 02` | Two header records |
-| `01 00 0A 74 65 78 74 2F 70 6C 61 69 6E` | Header ID 1 Content-Type, length 10, `text/plain` |
-| `02 00 02 6F 6B` | Header ID 2 Message, length 2, `ok` |
-| `4F 4B` | Body bytes: `OK` |
+| Byte offset | Bytes | Meaning |
+|---|---|---|
+| 0 | `01` | Version 1 |
+| 1 | `01` | REQUEST |
+| 2-3 | `00 00` | Flags = 0 |
+| 4-7 | `00 00 00 0B` | Payload length = 11 |
+| 8-18 | `2F 69 6E 64 65 78 2E 68 74 6D 6C` | `/index.html` |
+
+### Response: 115 bytes total, 107-byte payload
+
+```text
+01 02 00 00 00 00 00 6B 00 C8 00 02 01 00 18 61
+70 70 6C 69 63 61 74 69 6F 6E 2F 6F 63 74 65 74
+2D 73 74 72 65 61 6D 0B 00 02 6F 6B 3C 21 64 6F
+63 74 79 70 65 20 68 74 6D 6C 3E 3C 68 74 6D 6C
+3E 3C 62 6F 64 79 3E 3C 68 31 3E 4E 65 74 77 6F
+72 6B 20 41 72 63 68 69 74 65 63 74 75 72 65 3C
+2F 68 31 3E 3C 2F 62 6F 64 79 3E 3C 2F 68 74 6D
+6C 3E 0A
+```
+
+| Byte offset | Bytes / decoded value | Meaning |
+|---|---|---|
+| 0 | `01` | Version 1 |
+| 1 | `02` | RESPONSE |
+| 2-3 | `00 00` | Flags = 0 |
+| 4-7 | `00 00 00 6B` | Payload length = 107 |
+| 8-9 | `00 C8` | Status = 200 |
+| 10-11 | `00 02` | Two header records |
+| 12 | `01` | Content-Type name ID |
+| 13-14 | `00 18` | Value length = 24 |
+| 15-38 | `application/octet-stream` | Content-Type value |
+| 39 | `0B` | Message name ID 11 |
+| 40-41 | `00 02` | Value length = 2 |
+| 42-43 | `6F 6B` | Message value `ok` |
+| 44-114 | HTML bytes ending in `0A` | 67-byte file body, including newline |
+
+The body printed to stdout is:
+
+```html
+<!doctype html><html><body><h1>Network Architecture</h1></body></html>
+```
+
+Byte-count check: 4 bytes for status and header count, 27 for Content-Type,
+5 for Message, and 67 for the body: `4 + 27 + 5 + 67 = 107`. Add the 8-byte
+frame header for 115 bytes total. The capture script also checked both declared
+payload lengths against the bytes actually emitted.
+
+![Actual verbose request and response run](docs/demo-success.png)
 
 ## 10. Interoperability agreement
 
