@@ -1,3 +1,12 @@
+Successful request and complete hexdump
+![alt text](image.png)
+
+404, traversal rejection, and binary byte comparison
+![alt text](image-1.png)
+
+Full test suite including client extension skipping
+![alt text](image-2.png)
+
 # Binary TCP File Server
 
 This project is a small file server built for a Network Architecture course. It demonstrates how an application can define its **own binary protocol** on top of TCP. The server sends files from a configured `www` folder, and the client requests them using a URL such as `localhost:9000/index.html`.

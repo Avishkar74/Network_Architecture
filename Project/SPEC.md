@@ -229,7 +229,6 @@ Byte-count check: 4 bytes for status and header count, 27 for Content-Type,
 frame header for 115 bytes total. The capture script also checked both declared
 payload lengths against the bytes actually emitted.
 
-![Actual verbose request and response run](docs/demo-success.png)
 
 ## 10. Interoperability agreement
 
@@ -239,4 +238,11 @@ header records, status codes, path rules, maximum payload, and unknown-frame
 handling. A client and server created independently should then interoperate
 without sharing source code.
 
-For a live demonstration plan, see [DEMO.md](DEMO.md).
+Successful request and complete hexdump
+![alt text](image.png)
+
+404, traversal rejection, and binary byte comparison
+![alt text](image-1.png)
+
+Full test suite including client extension skipping
+![alt text](image-2.png).
