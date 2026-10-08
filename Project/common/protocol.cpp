@@ -180,6 +180,15 @@ std::string header_name(const Header& header) {
     switch (header.name) {
         case HeaderName::content_type:
             return "Content-Type";
+        case HeaderName::content_length: return "Content-Length";
+        case HeaderName::content_encoding: return "Content-Encoding";
+        case HeaderName::cache_control: return "Cache-Control";
+        case HeaderName::last_modified: return "Last-Modified";
+        case HeaderName::etag: return "ETag";
+        case HeaderName::date: return "Date";
+        case HeaderName::server: return "Server";
+        case HeaderName::location: return "Location";
+        case HeaderName::accept_ranges: return "Accept-Ranges";
         case HeaderName::message:
             return "Message";
         case HeaderName::custom:
